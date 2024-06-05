@@ -257,6 +257,7 @@ export default function Box({ data, stopTimer, totalTime, courSelected, topic, l
         ouverte: false,
         };
         try {
+        // eslint-disable-next-line no-unused-vars
         const { success, data, error } = await Evaluationservices.addInitialEvaluation(userID, evaluationData);
         if (success) {
             //console.log('Added initial evaluation data:', data);
