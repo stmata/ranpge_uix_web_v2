@@ -51,9 +51,12 @@ export default function Chat() {
     const [playingMessageId, setPlayingMessageId] = useState(null);
     const [copiedIndex, setCopiedIndex] = useState(null);
     const audioElement = useRef(new Audio());
-    const [isLoding, setisLoding] = useState(false); 
+    const [isLoding, setisLoding] = useState(false);
+    // eslint-disable-next-line no-unused-vars
     const [showSpeaker, setShowSpeaker] = useState(true);
+    // eslint-disable-next-line no-unused-vars
     const [showPlay, setShowPlay] = useState(true);
+    // eslint-disable-next-line no-unused-vars
     const [showPause, setShowPause] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 768);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -389,6 +392,7 @@ export default function Chat() {
           setPreviousChats(prevChats => prevChats.filter(chat => chat.id !== id_chat));
 
           // Call the API to delete the chat on the server-side
+            // eslint-disable-next-line no-unused-vars
           const { success, data } = await ChatServices.deleteChat(userID, id_chat);
 
           if (success) {
