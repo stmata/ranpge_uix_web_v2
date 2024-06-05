@@ -1,3 +1,11 @@
 module.exports = {
-  transformIgnorePatterns: ["/node_modules/(?!(react-markdown))/"],
+  // Autres propriétés de configuration Jest...
+
+  transform: {
+    "^.+\\.jsx?$": "babel-jest"
+  },
+
+  transformIgnorePatterns: [
+    "/node_modules/(?!(react-markdown))/"
+  ]
 };
