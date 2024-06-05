@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import LottieAnimation from './animation';
 import './evaluation.css'
 import { useStateGlobal } from '../../../context/contextStateGlobale';
