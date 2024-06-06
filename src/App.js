@@ -40,11 +40,11 @@ function App() {
     <>
     <UserProvider>
       <StateGlobalProvider>
-      <Routes>
+        <Routes>
           {/* Public Routes */}
-          <Route path='/' component={Home} />
-          <Route path='/contact' component={Contact} />
-          <Route path='/login' component={Login} />
+          <Route path='/' element={<Home />} />
+          <Route path='/contact' element={<Contact />} />
+          <Route path='/login' element={<Login />} />
           {/* Secure Routes */}
           <Route element={<AuthOutlet fallbackPath='/login' />}>
             <Route path='/settings' component={Settings} />
@@ -58,8 +58,8 @@ function App() {
             <Route path='/introduction' component={Introduction} />
           </Route>
           {/* Fallback Route for undefined paths */}
-          <Route path='*' component={NotFoundPage} />
-      </Routes>
+          <Route path='*' element={<NotFoundPage />} />
+        </Routes>
       </StateGlobalProvider>
     </UserProvider>
     </>
