@@ -40,26 +40,26 @@ function App() {
     <>
     <UserProvider>
       <StateGlobalProvider>
-        <Routes>
+      <Routes>
           {/* Public Routes */}
           <Route path='/' element={<Home />} />
           <Route path='/contact' element={<Contact />} />
           <Route path='/login' element={<Login />} />
           {/* Secure Routes */}
           <Route element={<AuthOutlet fallbackPath='/login' />}>
-            <Route path='/settings' component={Settings} />
-            <Route path='/evaluation' component={Evaluation} />
-            <Route path='/evaluationOuverte' component={EvalOuverte} />
-            <Route path='/topics' component={Topics} />
-            <Route path='/dashboard' component={Dashboard} />
-            <Route path='/cours' component={Cours} />
-            <Route path='/chat' component={Chat} />
-            <Route path='/level' component={Level} />
-            <Route path='/introduction' component={Introduction} />
+            <Route path='/settings' element={<Settings />} />
+            <Route path='/evaluation' element={<Evaluation />} />
+            <Route path='/evaluationOuverte' element={<EvalOuverte />} />
+            <Route path='/topics' element={<Topics />} />
+            <Route path='/dashboard' element={<Dashboard />} />
+            <Route path='/cours' element={<Cours />} />
+            <Route path='/chat' element={<Chat />} />
+            <Route path='/level' element={<Level />} />
+            <Route path='/introduction' element={<Introduction />} />
           </Route>
           {/* Fallback Route for undefined paths */}
           <Route path='*' element={<NotFoundPage />} />
-        </Routes>
+      </Routes>
       </StateGlobalProvider>
     </UserProvider>
     </>
