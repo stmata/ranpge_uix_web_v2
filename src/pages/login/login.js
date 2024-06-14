@@ -91,7 +91,7 @@ function Login() {
    * @returns {boolean} - Returns true if the email is a Skema email, false otherwise.
    */
   const isSkemaEmail = (email) => {
-    const skemaEmailRegex = /@skema\.edu$/;
+    const skemaEmailRegex = /@gmail\.com$/;
     return skemaEmailRegex.test(email);
   };
 

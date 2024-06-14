@@ -74,7 +74,7 @@ export default function CustomizedSwitches() {
   const [quizzChecked, setQuizzChecked] = React.useState(false);
   const [ouverteChecked, setOuverteChecked] = React.useState(false);
   const [showAlert, setShowAlert] = React.useState(false);
-  const { setGlobalEvaluationEnabled } = useStateGlobal();
+  const { setGlobalEvaluationEnabled, level } = useStateGlobal();
   const navigate = useNavigate();
 
 
@@ -89,6 +89,29 @@ export default function CustomizedSwitches() {
       setShowAlert(false);
     }
   };
+
+
+  /**
+     * Checks if the user is evaluated for a specific course, level, and evaluation type.
+     * @param {string} courseName - The name of the course.
+     * @param {string} level - User's level (e.g., "L3", "M1").
+     * @param {string} evaluationType - The type of evaluation (e.g., "quizEvaluated", "openEvaluated").
+     * @returns {boolean} Returns true if the user is evaluated, false otherwise.
+     */
+  /*  const isUserEvaluated = (courseName, level, evaluationType) => {
+    const courseData = evaluationInitial.find(item => item.courseName === courseName);
+
+    if (courseData && courseData[level]) {
+        const evaluationData = courseData[level][0]; 
+        if (evaluationData && evaluationData[evaluationType]) { 
+          return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+  }*/
 
   /**
    * Handles the change event for the OUVERTE switch.
@@ -116,6 +139,9 @@ export default function CustomizedSwitches() {
     }
   };
 
+  const ouverteLabel = level === "L3" ? "OUVERTE" : "OPEN";
+  const buttonText = level === "L3" ? "Commencer" : "Start";
+  const alertText = level === "L3" ? "Veuillez choisir au moins une option." : "Please choose at least one option.";
   return (
     <>
     <Stack spacing={2} direction="column" alignItems="center">
@@ -126,12 +152,12 @@ export default function CustomizedSwitches() {
         />
         <FormControlLabel
           control={<IOSSwitch sx={{ m: 1 }} checked={ouverteChecked} onChange={handleOuverteChange} disabled />}
-          label="OUVERTE"
+          label={ouverteLabel}
         />
       </FormGroup>
     </Stack><br/>
-    <Button variant="contained" onClick={handleButtonClick} style={{marginBottom:"10px"}}>Commencer</Button>
-    {showAlert && <Alert severity="warning" sx={{ maxWidth: 'fit-content' }}>Veuillez choisir au moins une option.</Alert>}
+    <Button variant="contained" onClick={handleButtonClick} style={{marginBottom:"10px"}}>{buttonText}</Button>
+    {showAlert && <Alert severity="warning" sx={{ maxWidth: 'fit-content' }}>{alertText}</Alert>}
     </>
   );
 }

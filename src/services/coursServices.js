@@ -1,4 +1,4 @@
-const serverUrl = 'https://pge-tunnel.azurewebsites.net'
+const serverUrl = process.env.REACT_APP_SERVER_URL
 /**
  * Provides a collection of service methods for interacting with the course API.
  * These methods are designed to facilitate the retrieval of course information based on the user's academic level,

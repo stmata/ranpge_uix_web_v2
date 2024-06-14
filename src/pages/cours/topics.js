@@ -1,6 +1,7 @@
 import React from 'react'
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
+import Evaluationservices from '../../services/evaluationServices';
 import Header from '../../components/header/privateHeader';
 import CardTopics from './card/CardTopics';
 import { useStateGlobal } from '../../context/contextStateGlobale';
@@ -36,7 +37,7 @@ import defaultImage from '../../assets/images/bloc_formations_degrade.jpg'
 
 export default function Topics() {
     const navigate = useNavigate();
-    const { coursSelected, topics, level, evaluationInitial, setGlobalEvaluationEnabled } = useStateGlobal();
+    const { coursSelected, topics, level, evaluationInitial, setGlobalEvaluationEnabled, setUserEvaluationInitial, setDataFrameStatus } = useStateGlobal();
     const title = level !== "L3" ? (coursSelected || "No Topic information is available at the moment.") : (coursSelected || "Aucune information du cours n'est disponible pour le moment.");
 
     /**
@@ -70,6 +71,51 @@ export default function Topics() {
     return topicName;
   };
   
+  /**
+     * Checks if the user is evaluated for a specific course, level, and evaluation type.
+     * @param {string} courseName - The name of the course.
+     * @param {string} level - User's level (e.g., "L3", "M1").
+     * @param {string} evaluationType - The type of evaluation (e.g., "quizEvaluated", "openEvaluated").
+     * @returns {boolean} Returns true if the user is evaluated, false otherwise.
+     */
+
+  const isUserEvaluated = (courseName, level, evaluationType) => {
+    const courseData = evaluationInitial.find(item => item.courseName === courseName);
+    
+    if (courseData && courseData[level]) {
+        const evaluationData = courseData[level][0]; 
+        if (evaluationData && evaluationData[evaluationType]) { 
+          return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+  }
+
+  /**
+  * Fetches and updates the data frame status based on the evaluation status.
+  * If successful, updates the data frame status with the received data.
+  * If unsuccessful, sets the data frame status to false and logs the error.
+  * @returns {void}
+  */
+
+  const fetchDataFrameStatus = async () => {
+    try {
+      const { success, data, error } = await Evaluationservices.getStatus(coursSelected, level, 'QCM');
+      
+      if (success) {
+        setDataFrameStatus(data);
+      } else {
+        setDataFrameStatus(false);
+        console.error('Failed to fetch data frame status:', error);
+      }
+    } catch (error) {
+      setDataFrameStatus(false);
+      console.error('Error fetching data frame status:', error);
+    }
+  };
     
     /**
    * Effect hook to check if the selected course has been evaluated and redirect the user if not.
@@ -90,17 +136,22 @@ export default function Topics() {
   useEffect(() => {
     document.title = `RAN PGE - Documents`;
     setGlobalEvaluationEnabled(false)
+    fetchDataFrameStatus()
     try {          
         if (!coursSelected || (topics && topics.length === 0)) {
             throw new Error('Local storage data missing');
         }
-        if(level === "L3"){
-            // Check if initial evaluation data is available and if the selected course has not been evaluated yet.
-          if (evaluationInitial.length === 0 || evaluationInitial.some(evalData => evalData.courseName === coursSelected && !evalData.quizEvaluated)) {
-            // Redirect user to '/introduction' route if the selected course has not been evaluated yet.
-            navigate('/introduction');
-          }
+        const evaluationType = "quizEvaluated"
+
+        // Check if initial evaluation data is available and if the selected course has not been evaluated yet.
+        const checkEvaluationInitial = isUserEvaluated(coursSelected,level,evaluationType)
+        console.log(checkEvaluationInitial)
+        setUserEvaluationInitial(checkEvaluationInitial)
+        // Redirect user to '/introduction' route if the selected course has not been evaluated yet.
+        if (!checkEvaluationInitial) {
+          navigate('/introduction');
         }
+
     } catch (error) {
         console.error("Error accessing local storage:", error);
         // Redirect user to '/cours' route if local storage data is missing.
@@ -123,7 +174,8 @@ export default function Topics() {
     return defaultImage;
   };
 
-  
+  const topicGlobalEvaluation = level === 'L3' ? 'Evaluation Globale' : "Global Evaluation";
+  const txtDescription = level === 'L3' ? 'Es-tu prêt à montrer de quoi tu es capable ?' : "Are you ready to show what you're capable of?";
   const titles = level !== "L3" ? `In this refresher course, you'll be able to gauge your general understanding of the main concepts in ${coursSelected}. It will consist of a quiz of 5 questions covering the whole contents of the course.` : `Dans ce cours de mise à niveau, vous pourrez évaluer votre compréhension générale des principaux concepts en ${coursSelected}. Il consistera en un quiz de 5 questions couvrant l'ensemble du contenu du cours.`;
     /**
    * Renders the list of topics.
@@ -140,12 +192,12 @@ export default function Topics() {
       <section className="mt-5">
         <div className="container">
           <div className="row">
-          {level === "L3" && coursSelected === "Marketing" && (
+            {/* Card for global evaluation */}
             <div className="col-lg-4 col-md-6 col-12 mb-4 max-auto" key={"_id"}>
               <CardTopics
-                topicName = "Evalution Globale"
+                topicName = {topicGlobalEvaluation}
                 rating={"topic.stars"}
-                description= 'Es-tu prêt à montrer de quoi tu es capable ?'
+                description= {txtDescription}
                 topicId= ""
                 level = {level}
                 cours = {coursSelected}
@@ -153,7 +205,6 @@ export default function Topics() {
                 topicImage={level === "L3" ? moduleImage  :sessionImage}
               />
           </div>
-          )}
           
           {topics.filter(topic => topic.status).map((topic) => (
             <div className="col-lg-4 col-md-6 col-12 mb-4 max-auto" key={topic._id}>

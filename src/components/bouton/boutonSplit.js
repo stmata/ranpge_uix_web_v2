@@ -18,7 +18,7 @@ import { useStateGlobal } from '../../context/contextStateGlobale';
  * @returns {JSX.Element} A JSX element representing the SplitButton component.
  */
 
-const options = ['Quiz', 'Ouverte'];
+const options = ['Ouverte', 'Quiz'];
 
 const SplitButton = ({ topicName }) => {
   const { setTopicSelected } = useStateGlobal();

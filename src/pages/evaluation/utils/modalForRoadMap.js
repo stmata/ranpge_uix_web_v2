@@ -8,6 +8,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import jsPDF from 'jspdf';
 import ReactMarkdown from 'react-markdown';
 import logoSkema from '../../../assets/images/logo_noir.png'
+import { useStateGlobal } from '../../../context/contextStateGlobale';
 
 /**
  * Custom scrollable dialog box component.
@@ -18,7 +19,7 @@ import logoSkema from '../../../assets/images/logo_noir.png'
  */
 export default function ScrollDialog({ textReference, textRoadMap }) {
   const [open, setOpen] = React.useState(false);
-
+  const { level } = useStateGlobal();
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -61,13 +62,20 @@ export default function ScrollDialog({ textReference, textRoadMap }) {
    */
 const mergeText = () => {
     const formatTextReference = formatTextToMarkdown(textReference)
+    let textforModal = '';
+    if (level === 'L3') {
+      textforModal += `### Exploration Essentielle : Références Clés pour ton Parcours de Mise à Niveau \n\n`;
+    } else {
+        textforModal += `### Essential Exploration: Key References for Your Upgrade Journey \n\n`;
+    }
 
-    let textforModal = `### Exploration Essentielle : Références Clés pour ton Parcours de Mise à Niveau \n\n`
-    
     textforModal+= formatTextReference
 
-    textforModal += `### Revue Réflexive : Traçons Ensemble la Voie vers la Maîtrise avec notre Roadmap Personnalisée \n\n`
-
+    if (level === 'L3') {
+      textforModal += `### Revue Réflexive : Traçons Ensemble la Voie vers la Maîtrise avec notre Roadmap Personnalisée \n\n`;
+  } else {
+      textforModal += `### Reflective Review: Charting the Path to Mastery with Our Custom Roadmap \n\n`;
+  }
     textforModal += textRoadMap
 
     return textforModal
@@ -76,9 +84,12 @@ const mergeText = () => {
 /**
 * Saves the displayed text as a PDF file.
 */
+const txtsousTitle = level === 'L3' ? 'Plateforme de mise à niveau' : 'Upskilling Platform';
+const txtTitle = level === 'L3' ? 'Exploration Essentielle : Références Clés pour ton Parcours de Mise à Niveau' : 'Essential Exploration: Key References for Your Upskilling';
+
 const handleSave = () => {
     const pdf = new jsPDF();
-    const title = "Exploration Essentielle : Références Clés pour ton Parcours de Mise à Niveau";
+    const title = txtTitle;
     const textToPrint = `${title}\n\n${textReference}`; 
 
     const pageWidth = pdf.internal.pageSize.getWidth();
@@ -89,7 +100,7 @@ const handleSave = () => {
     pdf.setLineWidth(0.1);
     pdf.line(margin, 32, pageWidth - margin, 32);
     pdf.setFontSize(13);
-    pdf.text('Plateforme de mise à niveau.', margin, pdf.internal.pageSize.height - 10);
+    pdf.text(txtsousTitle, margin, pdf.internal.pageSize.height - 10);
     pdf.text(`Page ${pdf.internal.getNumberOfPages()}`, pageWidth - margin, pdf.internal.pageSize.height - 10, { align: 'right' });
 
     const addContent = () => {
@@ -97,7 +108,7 @@ const handleSave = () => {
         pdf.setLineWidth(0.1);
         pdf.line(margin, 32, pageWidth - margin, 32);
         pdf.setFontSize(13);
-        pdf.text('Plateforme de mise à niveau.', margin, pdf.internal.pageSize.height - 10);
+        pdf.text(txtsousTitle, margin, pdf.internal.pageSize.height - 10);
         pdf.text(`${pdf.internal.getNumberOfPages()}`, pageWidth - margin, pdf.internal.pageSize.height - 10, { align: 'right' });
     };
 
@@ -177,11 +188,15 @@ const handleSave = () => {
       }
     }
   }, [open]);
+  const txtBtn = level === 'L3' ? 'Afficher Recommandation' : 'Display Recommendation';
+  const txtDialog = level === 'L3' ? 'Recommandation' : 'Recommendation';
+  const txtBtnClose = level === 'L3' ? 'Fermer' : 'Close';
+  const txtBtnDownload = level === 'L3' ? 'Télécharger' : 'Download';
 
   const text = mergeText()
   return (
     <React.Fragment>
-      <Button variant="outlined" onClick={handleClickOpen}>Afficher Recommandation</Button>
+      <Button variant="outlined" onClick={handleClickOpen}>{txtBtn}</Button>
       <Dialog
         open={open}
         onClose={handleClose}
@@ -189,7 +204,7 @@ const handleSave = () => {
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
       >
-        <DialogTitle id="scroll-dialog-title">Recommandation</DialogTitle>
+        <DialogTitle id="scroll-dialog-title">{txtDialog}</DialogTitle>
         <DialogContent dividers={true}>
           <DialogContentText
             id="scroll-dialog-description"
@@ -201,8 +216,8 @@ const handleSave = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Fermer</Button>
-          <Button onClick={handleSave}>Télécharger</Button>
+          <Button onClick={handleClose}>{txtBtnClose}</Button>
+          <Button onClick={handleSave}>{txtBtnDownload}</Button>
         </DialogActions>
       </Dialog>
     </React.Fragment>

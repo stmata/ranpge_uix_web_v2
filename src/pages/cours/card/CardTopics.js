@@ -65,14 +65,14 @@ const CardTopics = ({ level, cours, topicName, rating, description, topicId, sta
    * @throws {Error} Throws an error if there is a problem sending or retrieving data.
    * @returns {Object} An object containing an error message if there was a problem sending or retrieving data.
    */
-  
+  //Evaluation Globale' : "Global Evaluation
   const handleButtonClick = async (routeName) => {
   try {
     const coursName = extractSession(topicName);
     setTopicSelected(coursName);
-
+    console.log(topicName)
     // Calling the click method to record the click on the server.
-    if(topicName !== "Evalution Globale"){
+    if(topicName !== "Evaluation Globale" && topicName !== "Global Evaluation"){
       const clickResponse = await CoursServices.sendClickBtn(userID, "topic", topicId);
       console.log(clickResponse)
       if (!clickResponse.success) {
@@ -93,7 +93,7 @@ const CardTopics = ({ level, cours, topicName, rating, description, topicId, sta
         throw new Error(chatResponse.error || "Failed to send chat data");
       }
     } else {
-      if (topicName === "Evalution Globale"){
+      if (topicName === "Evaluation Globale" || topicName === "Global Evaluation"){
         setGlobalEvaluationEnabled(true)
       }
       navigate("/evaluation");
@@ -116,12 +116,12 @@ const CardTopics = ({ level, cours, topicName, rating, description, topicId, sta
       <img className="sk-card-image" src={topicImage} alt="House" />
       <div className="sk-card-content">
         <h2 className="sk-card-title">{topicName}</h2>
-        {topicName !== "Evalution Globale" && (
+        {topicName !== "Evaluation Globale" && topicName !== "Global Evaluation" && (
           <p className="sk-card-rating">👁️ {rating}</p>
         )}
         <p className="sk-card-description">{description}</p>
         <div className="sk-card-buttons">
-          {topicName === "Evalution Globale" ? (
+          {topicName === "Evaluation Globale" || topicName === "Global Evaluation"  ? (
             // Render the evaluation button for the global evaluation
             <button className="sk-card-button" onClick={() => handleButtonClick('evaluation')} >EVALUATION</button>
           ) : (

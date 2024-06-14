@@ -38,6 +38,7 @@ const felicitationMessages = [
 ];
 
 /**
+ * !!! For this component, we haven't yet incorporated DataFrame status handling as open-ended questions are only available for L3 level and Marketing course.
  * The `EvalOuverte` component is a page that displays an open-ended evaluation for the user.
  * It fetches questions and references from the server, displays them to the user, and allows the user to submit their answers.
  * Once the user submits their answers, the component calculates the user's score and percentage, displays the results, and saves the note to the server.
@@ -78,9 +79,9 @@ export default function EvalOuverte() {
             try {
                 let result;
                 if (topicSelected === null || topicSelected === "") {
-                    result = await Evaluationservices.getEvaluationGeneral("Ouverte");
+                    result = await Evaluationservices.getEvaluationGeneral(coursSelected,level,"Ouverte");
                 } else {
-                    result = await Evaluationservices.getOpenQuestions(topicSelected);
+                    result = await Evaluationservices.getOpenQuestions(coursSelected,level,topicSelected);
                 }
                 if (result.success) {
                     setQuestions(result.data);
@@ -88,9 +89,9 @@ export default function EvalOuverte() {
                     const questionsTemp = result.data.map(question => question[0]);
                     let referencesResult;
                     if (topicSelected === null || topicSelected === "") {
-                        referencesResult = await getQuestionReferences(questionsTemp, "Ouverte");
+                        referencesResult = await getQuestionReferences(questionsTemp,coursSelected,level,"Ouverte"); 
                     } else {
-                        referencesResult = await getQuestionReferences(questionsTemp, "Ouverte", topicSelected);
+                        referencesResult = await getQuestionReferences(questionsTemp,coursSelected,level,"Ouverte", topicSelected);
                     }
                     if (error) {
                         console.error('Failed to fetch references:', error);
@@ -102,6 +103,7 @@ export default function EvalOuverte() {
                 }
             } catch (error) {
                 console.error('Error fetching questions:', error);
+                navigate("/topics")
             }
         };
         fetchQuestions();
@@ -323,7 +325,7 @@ export default function EvalOuverte() {
                         {showAnimation && (
                             <>
                                 <center><h4 className="title-theme" style={{marginTop: "15px"}}>
-                                    Merci de votre patience pendant que nous évaluons votre test.
+                                {level === "L3" ? "Merci de votre patience pendant que nous évaluons votre test." : "Thank you for your patience while we evaluate your test."}
                                 </h4></center>
                                 <LottieSearchAnimation />
                             </>

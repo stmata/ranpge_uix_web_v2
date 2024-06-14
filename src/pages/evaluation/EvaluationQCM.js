@@ -18,10 +18,9 @@ export default function Evaluation() {
     const [questions, setQuestions] = useState([]); // State for storing quiz questions
     const [time, setTime] = useState(0); // State to store time in seconds
     const [timerOn, setTimerOn] = useState(false); // State to control timer on/off
-    const { setCours ,coursSelected, topicSelected, level, evaluationInitial, setEvaluationInitial, globalEvaluationEnabled, setGlobalEvaluationEnabled } = useStateGlobal();
+    const { setCours ,coursSelected, topicSelected, level, userEvaluationInitial, globalEvaluationEnabled, setGlobalEvaluationEnabled, dataFrameStatus } = useStateGlobal();
     const navigate = useNavigate()
     
-
     /**
      * Stops the timer.
      */
@@ -65,7 +64,7 @@ export default function Evaluation() {
     useEffect(() => {
       // Set document title
       document.title = `RAN PGE - Evaluation`;
-    
+      console.log(globalEvaluationEnabled)
       /**
        * Fetches evaluation questions from the server based on user data.
        * @async
@@ -73,7 +72,7 @@ export default function Evaluation() {
        * @param {string|null} topicSelected The selected topic, can be null or empty.
        * @returns {Promise<void>}
        */
-      const fetchQuestions = async (topicSelected) => {
+      const fetchQuestions = async (coursSelected,level, topicSelected, nbrinnerList) => {
         setIsLoading(true); 
       
         try {
@@ -86,7 +85,7 @@ export default function Evaluation() {
           let attempt = 0;
       
           while (attempt < 4) {
-            const result = await Evaluationservices.generateQuestions(level, coursSelected, topicSelected);
+            const result = await Evaluationservices.generateQuestions(coursSelected,level, topicSelected,nbrinnerList);
             //console.log(level,coursSelected,topicSelected)
             //console.log(result)
             if (result.success) {
@@ -115,17 +114,17 @@ export default function Evaluation() {
         }
       };
       
-      const fetchQuestionsQCM = async () => {
+      const fetchQuestionsQCM = async (coursSelected,level,topicSelected,globalEvaluationEnabled) => {
         setIsLoading(true);
 
         try { 
           let result;
           if ((topicSelected === null || topicSelected === "") || globalEvaluationEnabled){
-            result = await Evaluationservices.getEvaluationGeneral("QCM");
+            result = await Evaluationservices.getEvaluationGeneral(coursSelected,level,"QCM");
             //console.log(result);
           }
           else {
-            result = await Evaluationservices.getQCMQuestions(topicSelected);
+            result = await Evaluationservices.getQCMQuestions(coursSelected,level,topicSelected);
             //console.log(result);
           }
 
@@ -142,11 +141,25 @@ export default function Evaluation() {
         }
     };
       // Call fetchQuestions function when the component mounts
-      if (level === "M1") {
-        fetchQuestions(topicSelected);
-    } else {
-        fetchQuestionsQCM();
-    }
+      let nbrinnerList;
+      if (globalEvaluationEnabled){
+        nbrinnerList = 24
+      }
+      else{
+        nbrinnerList = 5
+      }
+
+      if (!dataFrameStatus){
+        fetchQuestions(coursSelected,level, topicSelected,nbrinnerList);
+      }
+      else{
+        fetchQuestionsQCM(coursSelected,level,topicSelected,globalEvaluationEnabled);
+      }
+      /*if (level === "M1") {
+        fetchQuestions(coursSelected,level, topicSelected,nbrinnerList);
+      } else {
+          fetchQuestionsQCM(coursSelected,level,topicSelected,globalEvaluationEnabled);
+      }*/
     
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -175,7 +188,7 @@ export default function Evaluation() {
                     </div>
                     <div className='row box-container'>
                         {isLoading ? <Loading /> : null}
-                        {(questions && questions.length > 0) ? <Box className='box-quizz' data={questions} stopTimer={stopTimer} totalTime={time} courSelected={coursSelected} topic={topicSelected} level={level} initialEval={evaluationInitial} setInitialEval={setEvaluationInitial} editListCours={setCours} gloableEval={globalEvaluationEnabled} setgloableEval={setGlobalEvaluationEnabled}/> : null}
+                        {(questions && questions.length > 0) ? <Box className='box-quizz' data={questions} stopTimer={stopTimer} totalTime={time} courSelected={coursSelected} topic={topicSelected} level={level} initialEval={userEvaluationInitial} dataFrameStatus={dataFrameStatus} editListCours={setCours} gloableEval={globalEvaluationEnabled} setgloableEval={setGlobalEvaluationEnabled}/> : null}
                     </div>
                 </div>
             </section>

@@ -13,12 +13,12 @@ import createRefresh from 'react-auth-kit/createRefresh';
  * @param {string} param.authToken - The current access token.
  * @returns {Promise<RefreshResult>} A promise that resolves with the refresh result.
  */
-
+const serverUrl = process.env.REACT_APP_SERVER_URL
 const refresh = createRefresh({
     interval: 20,
     refreshApiCallback: async (param) => {
         try {
-            const response = await fetch("https://pge-tunnel.azurewebsites.net/refresh", {
+            const response = await fetch(`${serverUrl}/refresh`, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',

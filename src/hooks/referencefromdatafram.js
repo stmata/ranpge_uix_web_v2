@@ -19,19 +19,19 @@ const useGetReferencesFromDatafram = () => {
      * @param {string|null} file_name - Name of the file containing the data (optional).
      * @returns {string[]} Array of references corresponding to the questions.
      */
-    const getQuestionReferences = async (questions, folder_name, file_name = null) => {
+    const getQuestionReferences = async (questions, coursSelected,level,folder_name, file_name = null) => {
         try {
             setLoading(true);
 
             let referencesData;
             if (file_name) {
-                const { success, data } = await Evaluationservices.getReferences(folder_name, file_name);
+                const { success, data } = await Evaluationservices.getReferences(coursSelected,level,folder_name, file_name);
                 if (!success) {
                     throw new Error(data.message || 'Failed to fetch references');
                 }
                 referencesData = data;
             } else {
-                const { success, data } = await Evaluationservices.getReferences(folder_name);
+                const { success, data } = await Evaluationservices.getReferences(coursSelected,level,folder_name);
                 if (!success) {
                     throw new Error(data.message || 'Failed to fetch references');
                 }

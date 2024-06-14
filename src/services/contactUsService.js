@@ -1,4 +1,4 @@
-const serverUrl = 'https://pge-tunnel.azurewebsites.net'
+const serverUrl = process.env.REACT_APP_SERVER_URL
 
 /**
  * MailServices module provides functions for sending emails.

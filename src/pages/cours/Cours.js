@@ -110,9 +110,8 @@ export default function Cours() {
 
     if (level && cours && cours.length === 0) {
       fetchData();
-      if (level === "L3") {
-        fetchInitialEvaluation();
-      }
+      fetchInitialEvaluation();
+
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -142,7 +141,6 @@ export default function Cours() {
   const fetchChaptersByCourseId = async (coursId, coursSelected, coursDescription) => {
     try {
       const course = cours.find(courseData => courseData._id === coursId);
-
       const clickResponse = await CoursServices.sendClickBtn(userID, "course", coursId);
       if (!clickResponse.success) {
         throw new Error('Error while sending click event.');

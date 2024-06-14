@@ -1,5 +1,5 @@
-const serverUrl = 'https://pge-tunnel.azurewebsites.net'
-const processDataUrl = 'https://api-ranpge-middleware-agent.azurewebsites.net'
+const serverUrl = process.env.REACT_APP_SERVER_URL
+const processDataUrl = process.env.REACT_APP_MIDDLEWARE_AGENT
 /**
  * Collection of service methods related to evaluation functionalities. 
  * These methods include generating quiz questions, saving evaluation notes, and retrieving a user's evaluation notes,
@@ -13,19 +13,21 @@ const Evaluationservices = {
      * 
      * @returns {Promise<{success: boolean, data: Object|undefined, error: string|undefined}>} A promise that resolves to an object indicating the success of the operation and containing the fetched questions, or an error message if the operation fails.
      */
-    async generateQuestions (level,module,chapterName) {
+    async generateQuestions (module,level,chapterName,nbrinnerList) {
         try {
-            const response = await fetch(`${serverUrl}/evalution`, {
+            const response = await fetch(`${serverUrl}/evalutionwithprompt`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    level : level,
                     module : module,
-                    topicsName : chapterName,}),
+                    level : level,
+                    topicsName : chapterName,
+                    nbrinnerList : nbrinnerList
+                }),
             });
-
+   
             if (!response.ok) {
                 throw new Error('Failed to fetch questions');
             }
@@ -187,8 +189,7 @@ const Evaluationservices = {
      * @param {Object} evaluationData - The initial evaluation data to be added, structured as follows:
      *                                  {
      *                                    "courseName": "Marketing",
-     *                                    "quizEvaluated": false,
-     *                                    "openEvaluated": true,
+     *                                    "quizEvaluated": false/true or "openEvaluated": true/false,
      *                                    "date": "2024-05-13"
      *                                  }
      * @returns {Promise<{success: boolean, data: Object|undefined, error: string|undefined}>} A promise that resolves to an object indicating the success of the operation and containing the added evaluation data, or an error message if the operation fails.
@@ -285,13 +286,17 @@ const Evaluationservices = {
      * @param {string} subfolderName - The name of the subfolder for which evaluation data is requested.
      * @returns {Promise<{success: boolean, data: any} | {error: string}>} A promise that resolves with an object containing the evaluation data and dataframe if successful, or an error message if unsuccessful.
      */
-    async getEvaluationGeneral(subfolderName) {
+    async getEvaluationGeneral(courseName,level,subfolderName) {
         try {
             const response = await fetch(`${serverUrl}/evalgeneralwithdatafram/${subfolderName}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({
+                    courseName : courseName,
+                    level : level
+                })
             });
             if (!response.ok) {
                 throw new Error('Failed to fetch evaluation questions');
@@ -310,14 +315,18 @@ const Evaluationservices = {
      * @param {string} fileName - The name of the file for which open questions are requested.
      * @returns {Promise<{success: boolean, data: any} | {error: string}>} A promise that resolves with an object containing the open questions and dataframe if successful, or an error message if unsuccessful.
      */
-    async getOpenQuestions(fileName) {
+    async getOpenQuestions(courseName,level,fileName) {
         try {
             const response = await fetch(`${serverUrl}/qouvertewithdatafram`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ fileName: fileName })
+                body: JSON.stringify({
+                    courseName: courseName,
+                    level: level, 
+                    fileName: fileName 
+                })
             });
 
             if (!response.ok) {
@@ -336,14 +345,18 @@ const Evaluationservices = {
      * @param {string} fileName - The name of the file for which QCM questions are requested.
      * @returns {Promise<{success: boolean, data: any} | {error: string}>} A promise that resolves with an object containing the QCM questions and dataframe if successful, or an error message if unsuccessful.
      */
-    async getQCMQuestions(fileName) {
+    async getQCMQuestions(courseName,level,fileName) {
         try {
             const response = await fetch(`${serverUrl}/qcmwithdatafram`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ fileName: fileName })
+                body: JSON.stringify({ 
+                    courseName: courseName,
+                    level: level,
+                    fileName: fileName 
+                })
             });
 
             if (!response.ok) {
@@ -364,7 +377,7 @@ const Evaluationservices = {
      * @param {string} [fileName] - Le nom du fichier DataFrame (optionnel).
      * @returns {Promise<{success: boolean, data: Object|undefined, error: string|undefined}>} - Une promesse qui résout avec un objet indiquant le succès de l'opération et contenant les références récupérées, ou un message d'erreur en cas d'échec.
      */
-    async getReferences(folder, fileName = null) {
+    async getReferences(courseName,level,folder, fileName = null) {
         try {
             let endpoint = `${serverUrl}/getReferenceswithdatafram`;
 
@@ -374,6 +387,8 @@ const Evaluationservices = {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
+                    courseName: courseName,
+                    level: level,
                     folder: folder,
                     fileName: fileName
                 })
@@ -450,6 +465,35 @@ const Evaluationservices = {
             return { success: true, data: data };
         } catch (error) {
             return { error: error.message || 'An unexpected error occurred.' };
+        }
+    },
+
+    /**
+     * Retrieves the status of data from the server for a specific course, level, and evaluation type.
+     * Sends a GET request to fetch the status of data stored on the server for a given course, level, and evaluation type.
+     * 
+     * @param {string} course - The name of the course for which data status is requested.
+     * @param {string} level - The level of the course for which data status is requested.
+     * @param {string} evaluation_type - The type of evaluation for which data status is requested.
+     * @returns {Promise<{success: boolean, data: boolean|string|undefined, error: string|undefined}>} A promise that resolves to an object indicating the success of the operation and containing the status of the requested data, or an error message if the operation fails.
+     */
+    async getStatus(course, level, evaluation_type) {
+        try {
+            const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/checkstatusofdatafram/${course}/${level}/${evaluation_type}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to get status');
+            }
+
+            const data = await response.json();
+            return { success: true, data: data.status };
+        } catch (error) {
+            return { error: error.message || "An unexpected error occurred." };
         }
     }
 

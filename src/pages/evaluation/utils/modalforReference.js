@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
+import { useStateGlobal } from '../../../context/contextStateGlobale';
 
 const style = {
   position: 'absolute',
@@ -27,10 +28,12 @@ export default function CustomModal({ title, content }) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const { level } = useStateGlobal();
 
+  const labelBtn = level === "L3" ? "Afficher Référence" : "Display Reference";
   return (
     <div>
-      <Button onClick={handleOpen}>Afficher Référence</Button>
+      <Button onClick={handleOpen}>{labelBtn}</Button>
       <Modal
         open={open}
         onClose={handleClose}

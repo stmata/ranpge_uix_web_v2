@@ -317,7 +317,7 @@ export const CourseEvolutionChartModulNote = ({ cours }) => {
       
       const otherEvaluationData = [];
       courseData.forEach(data => {
-        if (data.chapterName !== 'Evalution Globale') {
+        if (data.chapterName !== 'Evaluation Globale') {
           otherEvaluationData.push(data);
         }
       });
@@ -418,7 +418,7 @@ export const CourseEvolutionChartGlobalNote = ({ cours }) => {
       
       const initialEvaluationData = [];
       courseData.forEach(data => {
-        if (data.chapterName === 'Evalution Globale') {
+        if (data.chapterName === 'Evaluation Globale') {
           initialEvaluationData.push(data);
         } 
       });

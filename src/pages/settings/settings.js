@@ -12,7 +12,7 @@ import { useStateGlobal } from '../../context/contextStateGlobale';
 const Settings = () => {
   // Utilizes the theme context to access and manipulate the current theme and level.
   const { theme, setTheme } = useTheme();
-  const { level, setLevel, setCoursSelected, setTopics, setCours, setTopicSelected,setActiveVector, setCoursDescription, setStoreID, setEvaluationInitial } = useStateGlobal();
+  const { level, setLevel, setCoursSelected, setTopics, setCours, setTopicSelected,setActiveVector, setCoursDescription, setStoreID, setEvaluationInitial,setUserEvaluationInitial, setGlobalEvaluationEnabled } = useStateGlobal();
 
   /**
    * Toggles the application's theme between light and dark.
@@ -37,6 +37,8 @@ const Settings = () => {
       setActiveVector(false)
       setStoreID("")
       setEvaluationInitial([])
+      setGlobalEvaluationEnabled(false)
+      setUserEvaluationInitial(false)
       setLevel(prevLevel => {
         //console.log('Selected level:', prevLevel === 'L3' ? 'M1' : 'L3');
         const newLevel = prevLevel === 'L3' ? 'M1' : 'L3';

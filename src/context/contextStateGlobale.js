@@ -22,9 +22,11 @@ const StateGlobalProvider = ({ children }) => {
   const [storeID, setStoreID] = useState(localStorage.getItem('storeID') || '');
   const [activeVector, setActiveVector] = useState(localStorage.getItem('activeVector') === 'true' || false);
   const [globalEvaluationEnabled, setGlobalEvaluationEnabled] = useState(localStorage.getItem('globalEvaluationEnabled') === 'true' || false);
+  const [userEvaluationInitial, setUserEvaluationInitial] = useState(localStorage.getItem('userEvaluationInitial') === 'true' || false);
+  const [dataFrameStatus, setDataFrameStatus] = useState(localStorage.getItem('dataFrameStatus') === 'true' || false);
   const [evaluationInitial, setEvaluationInitial] = useState(JSON.parse(localStorage.getItem('evaluationInitial')) || []);
   
-  // Save global states to localStorage on each update
+  // Save global states to localStorage on each update 
   useEffect(() => {
     localStorage.setItem('level', level);
     localStorage.setItem('coursSelected', coursSelected);
@@ -35,8 +37,10 @@ const StateGlobalProvider = ({ children }) => {
     localStorage.setItem('coursDescription', coursDescription);
     localStorage.setItem('activeVector', activeVector.toString());
     localStorage.setItem('globalEvaluationEnabled', globalEvaluationEnabled.toString());
+    localStorage.setItem('userEvaluationInitial', userEvaluationInitial.toString());
+    localStorage.setItem('dataFrameStatus', dataFrameStatus.toString());
     localStorage.setItem('evaluationInitial', JSON.stringify(evaluationInitial));
-  }, [level, coursSelected, cours,topics, topicSelected, coursDescription,storeID, activeVector, globalEvaluationEnabled,evaluationInitial]);
+  }, [level, coursSelected, cours,topics, topicSelected, coursDescription,storeID, activeVector, globalEvaluationEnabled,userEvaluationInitial,dataFrameStatus,evaluationInitial]);
 
   /**
    * Global context of the application.
@@ -60,6 +64,10 @@ const StateGlobalProvider = ({ children }) => {
    * @property {function} setActiveVector - Function to activate or deactivate the vector.
    * @property {boolean} globalEvaluationEnabled - Indicator of global evaluation activation.
    * @property {function} setGlobalEvaluationEnabled - Function to activate or deactivate the global evaluation.
+   * @property {boolean} userEvaluationInitial - Indicator to check the user's initial evaluation.
+   * @property {function} setUserEvaluationInitial - Function to activate or deactivate the user's initial evaluation.
+   * @property {boolean} dataFrameStatus - Indicator to check the dataFrame Status.
+   * @property {function} setdataFrameStatus - Function to activate or deactivate the dataFrame Status.
    * @property {string|null} evaluationInitial - The selected evaluation type.
    * @property {function} setEvaluationInitial - Function to update the selected evaluation type.
    */
@@ -82,6 +90,10 @@ const StateGlobalProvider = ({ children }) => {
     setActiveVector,
     globalEvaluationEnabled,
     setGlobalEvaluationEnabled,
+    userEvaluationInitial,
+    setUserEvaluationInitial,
+    dataFrameStatus,
+    setDataFrameStatus,
     evaluationInitial,
     setEvaluationInitial
   };

@@ -1,5 +1,4 @@
-const serverUrl = 'https://pge-tunnel.azurewebsites.net'
-
+const serverUrl = process.env.REACT_APP_SERVER_URL
 /**
  * Collection of service methods related to user authentication and account management.
  * Includes functionalities such as sending verification emails, verifying user codes,

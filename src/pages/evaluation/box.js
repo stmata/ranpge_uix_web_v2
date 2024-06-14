@@ -140,13 +140,13 @@ function getEncouragementMessage(score, level) {
  * @param {string} props.topic - The name of the topic for which the quiz is being taken.
  * @param {string} props.level - The user's level (L3 for Language 3).
  * @param {Array} props.initialEval - Initial evaluation data for the user.
- * @param {Function} props.setInitialEval - Function to set initial evaluation data.
+ * @param {Function} props.dataFrameStatus - Indicates if the datafram enabled or disabled.
  * @param {Function} props.editListCours - Function to edit the list of courses.
  * @param {boolean} props.gloableEval - Indicates if the quiz is for global evaluation.
  * @param {Function} props.setgloableEval - Function to set global evaluation state.
  * @returns {React.Component} The rendered component. 
  */
-export default function Box({ data, stopTimer, totalTime, courSelected, topic, level, initialEval, setInitialEval, editListCours, gloableEval, setgloableEval }) {
+export default function Box({ data, stopTimer, totalTime, courSelected, topic, level, initialEval, dataFrameStatus, editListCours, gloableEval, setgloableEval }) {
 
     // useState hooks to manage the state of user answers, submission status, results, and quit status.
     const [userAnswers, setUserAnswers] = useState(new Array(data.length).fill(null));
@@ -253,8 +253,8 @@ export default function Box({ data, stopTimer, totalTime, courSelected, topic, l
     const AddInitialEvaluation = async () => {
         const evaluationData = {
         courseName: courSelected,
-        quiz: true,
-        ouverte: false,
+        quizEvaluated: true,
+        level: level,
         };
         try {
         // eslint-disable-next-line no-unused-vars
@@ -262,7 +262,7 @@ export default function Box({ data, stopTimer, totalTime, courSelected, topic, l
         if (success) {
             //console.log('Added initial evaluation data:', data);
             editListCours([])
-            setInitialEval(evaluationData)
+            //setInitialEval(evaluationData)
         } else {
             console.error('Error adding initial evaluation data:', error);
         }
@@ -341,13 +341,13 @@ export default function Box({ data, stopTimer, totalTime, courSelected, topic, l
         if (data.length > 0) {
             const fetchData = async () => {
                 try {
-                    if (level === "L3") {
+                    if (dataFrameStatus) {
                         const questionsTemp = data.map(question => question[0]);
                         let referencesResult;
-                        if ((initialEval && initialEval.length === 0) || gloableEval) {
-                            referencesResult = await getQuestionReferences(questionsTemp, "QCM");
+                        if (initialEval  || gloableEval) {
+                            referencesResult = await getQuestionReferences(questionsTemp,courSelected,level, "QCM");
                         } else {
-                            referencesResult = await getQuestionReferences(questionsTemp, "QCM", topic);
+                            referencesResult = await getQuestionReferences(questionsTemp, courSelected,level,"QCM", topic);
                         }
                         if (error){
                             throw new Error('Failed to compare answers');
@@ -377,7 +377,7 @@ export default function Box({ data, stopTimer, totalTime, courSelected, topic, l
      * @name useEffectDisplayToast
      */
     useEffect(() => {
-            if (!isFetch && laodpage && level !== "L3") {
+            if (!isFetch && laodpage && !dataFrameStatus) {
             Toast.fire({
                 icon: 'success',
                 title: 'Fetching reference completed!'
@@ -454,7 +454,13 @@ export default function Box({ data, stopTimer, totalTime, courSelected, topic, l
         const questionsByModule = {};
 
         wrongAnswersIndices.forEach(index => {
-            const module = `Module ${Math.floor(index / 4) + 1}`; 
+            let module;
+            if (level === 'L3') {
+                module = `Module ${Math.floor(index / 4) + 1}`;
+            } else if (level === 'M1') {
+                module = `Session${Math.floor(index / 4) + 1}`;
+            }
+            //console.log(module)
             const question = data[index][0];
 
             if (!questionsByModule[module]) {
@@ -501,8 +507,7 @@ export default function Box({ data, stopTimer, totalTime, courSelected, topic, l
             // Check if a course is selected and proceed with saving note
             if(courSelected !== null){
                 //console.log(initialEval)
-                // If the user is in level 3, check if initial evaluation is required and add if necessary
-                if (level === "L3" && (initialEval && initialEval.length === 0)) {
+                if (level && !initialEval ) {
                     AddInitialEvaluation();
                 }
                 
@@ -511,7 +516,7 @@ export default function Box({ data, stopTimer, totalTime, courSelected, topic, l
                     courseName: courSelected,
                     note: newPercentage,
                     time: totalTime,
-                    chapterName: topic === '' ? 'Evalution Globale' : topic
+                    chapterName: (topic === "Global Evaluation" || topic === "Evaluation Globale") ? "Evaluation Globale" : topic
                   };
                   //console.log(saveNote)
                 const response = await Evaluationservices.saveNote(userID, saveNote);
@@ -564,13 +569,15 @@ export default function Box({ data, stopTimer, totalTime, courSelected, topic, l
                     if (response.success) {
                         let roadmapString = ''; // Initialize roadmap string
                         let referenceString = ''; // Initialize reference string
-
+                        console.log(response.data)
                         // Loop through each key in the response data
                         Object.keys(response.data).forEach(key => { 
                             if (response.data[key].length > 305){
                                 roadmapString += `${key}:\n${response.data[key]}\n\n`;
                             }
+                            console.log(response.data[key])
                             const moduleNumberFromKey = parseInt(key.match(/\d+/)[0]); 
+                            console.log(moduleNumberFromKey)
                             let moduleReferences = `${key} \n`;
                             let addedReferences = new Set(); 
 
@@ -580,8 +587,14 @@ export default function Box({ data, stopTimer, totalTime, courSelected, topic, l
                                 
                                 // Check if module number matches extracted module number from the key
                                 if (moduleNameIndex === moduleNumberFromKey) {
-                                    const reference = fetchReference[shuffledData[index][3]]; // Get reference of the question
-                                    
+                                    let reference;
+                                    if (dataFrameStatus){
+                                        reference = fetchReference[shuffledData[index][3]];
+                                    }
+                                    else{
+                                        reference = fetchReference[shuffledData[index][3]].sources;
+                                    }
+                                     // Get reference of the question
                                     // Check if reference exists and add to module reference string if not already added
                                     if (reference && !addedReferences.has(reference)) {
                                         moduleReferences += `${reference}\n`; // Append reference to module reference string
@@ -651,12 +664,15 @@ export default function Box({ data, stopTimer, totalTime, courSelected, topic, l
         }
     };
 
+    const textForAnimation = level === 'L3'
+  ? 'Merci de votre patience pendant que nous préparons des recommandations pour vos révisions basées sur votre test.'
+  : 'Thank you for your patience while we prepare revision recommendations based on your test.';
     return (
             <div className='container-rate'>
                 {fetchRoadMap ? (
                             <>
                                 <center><h4 className="title-theme" style={{marginTop: "15px"}}>
-                                Merci de votre patience pendant que nous préparons des recommandations pour vos révisions basées sur votre test.
+                                {textForAnimation}
                                 </h4></center>
                                 <LottieSearchAnimation />
                             </>
@@ -687,14 +703,16 @@ export default function Box({ data, stopTimer, totalTime, courSelected, topic, l
                                 fetchReference[index] && (
                                 <Expander title={' Check reference'} style={{with:'100%'}}>
                                     <div>
-                                        {level !== "L3" ? (
+                                        {dataFrameStatus ? (
                                             <>
-                                                <h3>Sources & Chunks</h3><br />
-                                                <p>{fetchReference[shuffledData[index][3]].sources}</p> 
-                                                <p>{fetchReference[shuffledData[index][3]].chunks}</p> 
+                                                <h3>{fetchReference[shuffledData[index][3]]}</h3>
                                             </>
                                         ) : (
-                                            <h3>{fetchReference[shuffledData[index][3]]}</h3> 
+                                            <>
+                                            <h3>Sources & Chunks</h3><br />
+                                            <p>{fetchReference[shuffledData[index][3]].sources}</p> 
+                                            <p>{fetchReference[shuffledData[index][3]].chunks}</p> 
+                                        </>
                                         )}
                                     </div>
                                 </Expander>
