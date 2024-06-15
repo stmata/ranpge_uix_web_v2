@@ -518,7 +518,8 @@ export default function Box({ data, stopTimer, totalTime, courSelected, topic, l
                     time: totalTime,
                     chapterName: (topic === "Global Evaluation" || topic === "Evaluation Globale" || topic === "") ? "Evaluation Globale" : topic
                   };
-                  //console.log(saveNote)
+                console.log(topic)
+                console.log(saveNote)
                 const response = await Evaluationservices.saveNote(userID, saveNote);
                 if (response.success) {
                     Toast.fire({
