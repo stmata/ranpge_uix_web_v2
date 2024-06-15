@@ -516,7 +516,7 @@ export default function Box({ data, stopTimer, totalTime, courSelected, topic, l
                     courseName: courSelected,
                     note: newPercentage,
                     time: totalTime,
-                    chapterName: (topic === "Global Evaluation" || topic === "Evaluation Globale") ? "Evaluation Globale" : topic
+                    chapterName: (topic === "Global Evaluation" || topic === "Evaluation Globale" || topic === "") ? "Evaluation Globale" : topic
                   };
                   //console.log(saveNote)
                 const response = await Evaluationservices.saveNote(userID, saveNote);
